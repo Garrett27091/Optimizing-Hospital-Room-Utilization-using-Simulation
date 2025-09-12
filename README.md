@@ -12,6 +12,7 @@ patient wait times. Over the past year, I have interned with provider
 scheduling company QGenda working with software that monitors
 the capacity of rooms as well as display that data in intuitive visuals
 for hospital management.
+<br/>
 This project aims to create a simulation of appointment scheduling
 across different departments to most efficiently use a limited set of
 rooms. One of the challenges of room scheduling is matching differ-
@@ -21,6 +22,7 @@ ferent types of equipment constraining which providers can use the
 space, but other rooms are available to be used by multiple special-
 ties. This combined with the changing number of specialists available
 from session to session adds complexity to creating a schedule.
+<br/>
 This project seeks to answer how we can efficiently assign rooms in
 a schedule to maximize hospital profit and patient throughput. To
 accomplish this, we will need to be able develop a stochastic model for
