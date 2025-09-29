@@ -32,3 +32,12 @@ of room resources. We will assume that patient demand follows a
 Poisson distribution, and that each room will hold one patient and one
 provider creating an assignment. The model will treat assignments
 as one block that fills a set duration.
+
+# Project Status
+First major objective - get ABC algorithm implementation working, flesh out architecture based on UML diagram
+
+# Installation Instructions
+
+# Usage
+
+# Architecture Overview
