@@ -10,26 +10,30 @@ public class FirstFit {
             int curPatient = 0;
             int curRoom = 0;
             int curDoc = 0;
+            int day = 1;
 
             boolean foundAssign = false;
 
-            while (curPatient < patients.length && !foundAssign) {
-                // first search for doctor to schedule to patient
-                while (curDoc < docs.length && !foundAssign) {
-                    if (patients[curPatient].Specialty.equals(docs[curDoc].specialty) && (docs[curDoc].curShifts < docs[curDoc].maxShifts)) {
-                        while (curRoom < rooms.length && !foundAssign) {
-                            if (patients[curPatient].Specialty.equals(rooms[curRoom].specialty) && (!rooms[curRoom].hasPatient)) {
-                                Assignment newSchedule = new Assignment(patients[curPatient], docs[curDoc], rooms[curRoom]);
-                                schedule[i] = newSchedule;
-                                foundAssign = true;
-                            } else {
-                                curRoom++;
+            while (day < days+1 && !foundAssign) {
+                while (curPatient < patients.length && !foundAssign) {
+                    // first search for doctor to schedule to patient
+                    while (curDoc < docs.length && !foundAssign) {
+                        if (patients[curPatient].specialty.equals(docs[curDoc].specialty) && (docs[curDoc].curShifts < docs[curDoc].maxShifts)) {
+                            while (curRoom < rooms.length && !foundAssign) {
+                                if (patients[curPatient].specialty.equals(rooms[curRoom].specialty) && (!rooms[curRoom].hasPatient)) {
+                                    Assignment newSchedule = new Assignment(patients[curPatient], docs[curDoc], rooms[curRoom], day);
+                                    schedule[i] = newSchedule;
+                                    foundAssign = true;
+                                } else {
+                                    curRoom++;
+                                }
                             }
+                        } else {
+                            curDoc++;
                         }
-                    } else {
-                        curDoc++;
-                    }
-                }   
+                    }   
+                }
+                day++;
             }
             
         }
