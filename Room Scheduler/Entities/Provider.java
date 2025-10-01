@@ -1,14 +1,18 @@
 package Entities;
 
 public class Provider {
-    public boolean scheudledDay = false;
-    public boolean scheudledNight = false;
-    public int maxShifts = 5;
+    public int maxShifts;
+    public int curShifts = 0;
     public String specialty;
 
-    Provider(boolean scheudledDay, boolean scheudledNight, String specialty) {
-        this.scheudledDay = scheudledDay;
-        this.scheudledNight = scheudledNight;
+    public void addShift() {
+        if (curShifts < maxShifts) {
+            curShifts++;
+        }
+    }
+
+    public Provider(int maxShifts, String specialty) {
         this.specialty = specialty;
+        this.maxShifts = maxShifts;
     }
 }
