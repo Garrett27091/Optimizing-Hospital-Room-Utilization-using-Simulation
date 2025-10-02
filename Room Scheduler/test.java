@@ -3,7 +3,8 @@ import Entities.*;
 public class test {
     public static void main(String[] args) {
         CreateEntitytList makeLists = new CreateEntitytList();
-        FirstFit firstFitSchedule = new FirstFit();
+        FirstFit firstFit = new FirstFit();
+        ABC abc = new ABC();
         
         String[] specialties = {"Anes", "Card", "OBGYN"};
         // set up parameters for patients
@@ -29,11 +30,21 @@ public class test {
             System.out.println(r);
         }
 
-        System.out  .println("________________________________________");
+        System.out.println("First Fit Schedule");
+        System.out.println("________________________________________");
 
-        Assignment[] schedule = firstFitSchedule.createSchedule(patientList, roomList, providerList, 14);
+        Assignment[] firstFitSchedule = firstFit.createSchedule(patientList, roomList, providerList, 14);
 
-        for (Assignment a : schedule) {
+        Assignment[] artificialBeeColonySchedule = abc.createSchedule(patientList, providerList, roomList, 14);
+
+        for (Assignment a : firstFitSchedule) {
+            System.out.println(a);
+        }
+
+        System.out.println("Artifical Bee Colony Algorithm");
+        System.out.println("________________________________________");
+
+        for (Assignment a : artificialBeeColonySchedule) {
             System.out.println(a);
         }
     }

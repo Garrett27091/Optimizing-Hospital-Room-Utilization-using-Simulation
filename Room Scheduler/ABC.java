@@ -1,4 +1,226 @@
+import java.util.*;
+import Entities.*;
+
 public class ABC {
 
-    
+    // initiatize bee algorithm parameters
+    public final int populationSize = 40;
+    public final int maxIterations = 1000;
+    public final int limit = 100; // improvement counter
+    public final int employedBees = 20;
+    public final int onlookerBees = 15;
+    public final static int conflictPenalty = 10000; // high penalty to prevent double scheduling
+
+    static final Random rand = new Random();
+
+    public Assignment[] createSchedule(Patient[] patients, Provider[] providers, Room[] rooms, int days) {
+        if (patients == null || patients.length == 0) return new Assignment[0];
+
+        // initialize population of solutions
+        List<Solution> population = new ArrayList<>(populationSize);
+        for (int i = 0; i < populationSize; i++) {
+            Solution s = randomSolution(patients, providers, rooms, days);
+            evaluateSolution(s);
+            population.add(s);
+        }
+
+        // initalize empty best schedule
+        Solution best = null;
+        for (Solution s : population) {
+            if (best == null || compareSolutions(s, best) > 0) best = deepCopy(s);
+        }
+
+        // ABC main loop
+        for (int iter = 0; iter < maxIterations; iter++) {
+            // employed bee phase
+            for (int i = 0; i < employedBees && i < population.size(); i++) {
+                Solution current = population.get(i);
+                Solution neighbor = neighborSolution(current, patients, providers, rooms, days);
+                evaluateSolution(neighbor);
+                if (compareSolutions(neighbor, current) > 0) {
+                    population.set(i, neighbor);
+                    neighbor.trials = 0;
+                    if (compareSolutions(neighbor, best) > 0) best = deepCopy(neighbor);
+                } else {
+                    current.trials++;
+                }
+            }
+
+            // onlooker bee phase
+            double[] probabilities = calculateSelectionProbabilities(population);
+            for (int i = 0; i < onlookerBees; i++) {
+                int chosenIndex = rouletteSelect(probabilities);
+                Solution chosen = population.get(chosenIndex);
+                Solution neighbor = neighborSolution(chosen, patients, providers, rooms, days);
+                evaluateSolution(neighbor);
+                if (compareSolutions(neighbor, chosen) > 0) {
+                    population.set(chosenIndex, neighbor);
+                    neighbor.trials = 0;
+                    if (compareSolutions(neighbor, best) > 0) best = deepCopy(neighbor);
+                } else {
+                    chosen.trials++;
+                }
+            }
+
+            // scout bee phase
+            for (int i = 0; i < population.size(); i++) {
+                Solution s = population.get(i);
+                if (s.trials >= limit) {
+                    Solution scout = randomSolution(patients, providers, rooms, days);
+                    evaluateSolution(scout);
+                    population.set(i, scout);
+                    if (compareSolutions(scout, best) > 0) best = deepCopy(scout);
+                }
+            }
+        }
+
+        return best.assignments;
+    }
+
+    private static class Solution {
+        Assignment[] assignments;
+        int fitness;
+        int conflicts;
+        int scheduledCount;
+        int trials;
+    }
+
+    // random solution generation method 
+
+    private static Solution randomSolution(Patient[] patients, Provider[] providers, Room[] rooms, int days) {
+        Solution s = new Solution();
+        s.assignments = new Assignment[patients.length];
+        s.trials = 0;
+
+        for (int i = 0; i < patients.length; i++) {
+            if (rand.nextDouble() < 0.8) { // ~80% chance to schedule patient
+                Provider doc = providers[rand.nextInt(providers.length)];
+                Room room = rooms[rand.nextInt(rooms.length)];
+                int day = rand.nextInt(days);
+                s.assignments[i] = new Assignment(patients[i], doc, room, day);
+            } else {
+                s.assignments[i] = null;
+            }
+        }
+        return s;
+    }
+
+    private static Solution neighborSolution(Solution base, Patient[] patients, Provider[] providers, Room[] rooms, int days) {
+        Solution copy = deepCopy(base);
+
+        int modifications = 1 + rand.nextInt(3);
+        for (int m = 0; m < modifications; m++) {
+            int idx = rand.nextInt(copy.assignments.length);
+            double r = rand.nextDouble();
+            if (copy.assignments[idx] == null) {
+                // try scheduling an unscheduled patient
+                if (r < 0.7) {
+                    Provider prov = providers[rand.nextInt(providers.length)];
+                    Room room = rooms[rand.nextInt(rooms.length)];
+                    int day = rand.nextInt(days);
+                    copy.assignments[idx] = new Assignment(patients[idx], prov, room, day);
+                }
+            } else {
+                if (r < 0.3) {
+                    // unschedule
+                    copy.assignments[idx] = null;
+                } else {
+                    // change provider, room, or day
+                    Provider prov = providers[rand.nextInt(providers.length)];
+                    Room room = rooms[rand.nextInt(rooms.length)];
+                    int day = rand.nextInt(days);
+                    copy.assignments[idx] = new Assignment(patients[idx], prov, room, day);
+                }
+            }
+        }
+        return copy;
+    }
+
+    // fitness evaluation
+    private static void evaluateSolution(Solution s) {
+        int conflicts = 0;
+        int scheduled = 0;
+
+        // track usage per day
+        Map<Integer, Set<Provider>> providersPerDay = new HashMap<>();
+        Map<Integer, Set<Room>> roomsPerDay = new HashMap<>();
+
+        for (Assignment a : s.assignments) {
+            if (a == null) continue;
+            scheduled++;
+            int day = a.assignDay;
+
+            providersPerDay.putIfAbsent(day, new HashSet<>());
+            roomsPerDay.putIfAbsent(day, new HashSet<>());
+
+            if (!providersPerDay.get(day).add(a.doc)) conflicts++;
+            if (!roomsPerDay.get(day).add(a.room)) conflicts++;
+        }
+
+        s.conflicts = conflicts;
+        s.scheduledCount = scheduled;
+
+        if (conflicts > 0) {
+            s.fitness = -conflicts * conflictPenalty + scheduled;
+        } else {
+            s.fitness = scheduled;
+        }
+    }
+
+    private static int compareSolutions(Solution a, Solution b) {
+        if (a.fitness != b.fitness) {
+            return Integer.compare(a.fitness, b.fitness);
+        }
+        if (a.conflicts != b.conflicts) {
+            return Integer.compare(b.conflicts, a.conflicts);
+        }
+        return Integer.compare(a.scheduledCount, b.scheduledCount);
+    }
+
+    private static Solution deepCopy(Solution s) {
+        Solution c = new Solution();
+        c.assignments = new Assignment[s.assignments.length];
+        for (int i = 0; i < s.assignments.length; i++) {
+            Assignment a = s.assignments[i];
+            if (a == null) {
+                c.assignments[i] = null;
+            } else {
+                c.assignments[i] = new Assignment(a.patient, a.doc, a.room, a.assignDay);
+            }
+        }
+        c.fitness = s.fitness;
+        c.conflicts = s.conflicts;
+        c.scheduledCount = s.scheduledCount;
+        c.trials = s.trials;
+        return c;
+    }
+
+    private static double[] calculateSelectionProbabilities(List<Solution> population) {
+        double[] raw = new double[population.size()];
+        double sum = 0.0;
+        for (int i = 0; i < population.size(); i++) {
+            double val = population.get(i).fitness;
+            if (val < 0) val = 1.0 / (1 - val);
+            raw[i] = val;
+            sum += raw[i];
+        }
+        double[] probs = new double[population.size()];
+        if (sum <= 0) {
+            Arrays.fill(probs, 1.0 / probs.length);
+        } else {
+            for (int i = 0; i < probs.length; i++) probs[i] = raw[i] / sum;
+        }
+        return probs;
+    }
+
+    private static int rouletteSelect(double[] probs) {
+        double r = rand.nextDouble();
+        double acc = 0.0;
+        for (int i = 0; i < probs.length; i++) {
+            acc += probs[i];
+            if (r <= acc) return i;
+        }
+        return probs.length - 1;
+    }
+
 }

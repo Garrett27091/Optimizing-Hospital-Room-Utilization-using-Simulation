@@ -9,18 +9,19 @@ public class FirstFit {
         for (int curPatient = 0; curPatient < patients.length; curPatient++) {
             int curRoom = 0;
             int curDoc = 0;
-            int day = 1;
 
             boolean foundAssign = false;
 
             // first search for doctor to schedule to patient
             while (curDoc < docs.length && !foundAssign) {
+                
                 // check for specialty match and if doctor has an available shift
                 if (patients[curPatient].specialty.equals(docs[curDoc].specialty) && (docs[curDoc].curShifts < docs[curDoc].maxShifts)) {
                     // after finding doctor search for room
                     while (curRoom < rooms.length && !foundAssign) {
                         if (patients[curPatient].specialty.equals(rooms[curRoom].specialty)) {
-                            // with doctor and room pairing search for available day
+                            // with doctor and room pairing search for available day starting w/ day 1
+                            int day = 1;
                             while (day < days+1 && !foundAssign) {
                                 //check to see if assignment for room or doctor is already created on that day
                                 boolean isConflict = false;
