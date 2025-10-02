@@ -3,7 +3,6 @@ package Entities;
 public class Room {
     public boolean isScheduledAM = false;
     public boolean isScheduledPM = false;
-    public boolean hasPatient = false;
     public String specialty;
     public int roomID;
 
@@ -15,10 +14,6 @@ public class Room {
         return;
     }
 
-    public void emptyRoom() {
-        hasPatient = false;
-    }
-
     public Room(String specialty, int roomID) {
         this.specialty = specialty;
         this.roomID = roomID;
@@ -26,6 +21,6 @@ public class Room {
 
     @Override
     public String toString() {
-        return "ID: " + roomID + " " + specialty + " Occupied: " + hasPatient;
+        return "ID: " + roomID + " " + specialty;
     }
 }
