@@ -27,7 +27,7 @@ public class ABC {
         // initalize empty best schedule
         Solution best = null;
         for (Solution s : population) {
-            if (best == null || compareSolutions(s, best) > 0) best = deepCopy(s);
+            if (best == null || compareSolutions(s, best) > 0) best = copy(s);
         }
 
         // ABC main loop
@@ -40,7 +40,7 @@ public class ABC {
                 if (compareSolutions(neighbor, current) > 0) {
                     population.set(i, neighbor);
                     neighbor.trials = 0;
-                    if (compareSolutions(neighbor, best) > 0) best = deepCopy(neighbor);
+                    if (compareSolutions(neighbor, best) > 0) best = copy(neighbor);
                 } else {
                     current.trials++;
                 }
@@ -56,7 +56,7 @@ public class ABC {
                 if (compareSolutions(neighbor, chosen) > 0) {
                     population.set(chosenIndex, neighbor);
                     neighbor.trials = 0;
-                    if (compareSolutions(neighbor, best) > 0) best = deepCopy(neighbor);
+                    if (compareSolutions(neighbor, best) > 0) best = copy(neighbor);
                 } else {
                     chosen.trials++;
                 }
@@ -69,7 +69,7 @@ public class ABC {
                     Solution scout = randomSolution(patients, providers, rooms, days);
                     evaluateSolution(scout);
                     population.set(i, scout);
-                    if (compareSolutions(scout, best) > 0) best = deepCopy(scout);
+                    if (compareSolutions(scout, best) > 0) best = copy(scout);
                 }
             }
         }
@@ -93,7 +93,7 @@ public class ABC {
         s.trials = 0;
 
         for (int i = 0; i < patients.length; i++) {
-            if (rand.nextDouble() < 0.8) { // ~80% chance to schedule patient
+            if (rand.nextDouble() < 0.5) { // 50% chance to keep unimproved solution
                 Provider doc = providers[rand.nextInt(providers.length)];
                 Room room = rooms[rand.nextInt(rooms.length)];
                 int day = rand.nextInt(days);
@@ -106,7 +106,7 @@ public class ABC {
     }
 
     private static Solution neighborSolution(Solution base, Patient[] patients, Provider[] providers, Room[] rooms, int days) {
-        Solution copy = deepCopy(base);
+        Solution copy = copy(base);
 
         int modifications = 1 + rand.nextInt(3);
         for (int m = 0; m < modifications; m++) {
@@ -114,14 +114,14 @@ public class ABC {
             double r = rand.nextDouble();
             if (copy.assignments[idx] == null) {
                 // try scheduling an unscheduled patient
-                if (r < 0.7) {
+                if (r < 0.5) {
                     Provider prov = providers[rand.nextInt(providers.length)];
                     Room room = rooms[rand.nextInt(rooms.length)];
                     int day = rand.nextInt(days);
                     copy.assignments[idx] = new Assignment(patients[idx], prov, room, day);
                 }
             } else {
-                if (r < 0.3) {
+                if (r < 0.5) {
                     // unschedule
                     copy.assignments[idx] = null;
                 } else {
@@ -177,7 +177,7 @@ public class ABC {
         return Integer.compare(a.scheduledCount, b.scheduledCount);
     }
 
-    private static Solution deepCopy(Solution s) {
+    private static Solution copy(Solution s) {
         Solution c = new Solution();
         c.assignments = new Assignment[s.assignments.length];
         for (int i = 0; i < s.assignments.length; i++) {
