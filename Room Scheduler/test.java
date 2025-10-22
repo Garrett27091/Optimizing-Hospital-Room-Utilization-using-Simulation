@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.Scanner;
+
 import Entities.*;
 
 public class test {
@@ -7,15 +9,44 @@ public class test {
         FirstFit firstFit = new FirstFit();
         ABC abc = new ABC();
         
-        String[] specialties = {"Anes", "Card", "OBGYN"};
-        // set up parameters for patients
-        int patientCount = 100;
+        Scanner scan = new Scanner(System.in);
+        String[] specialties;
+        int patientCount;
+        int providerCount;
+        int roomCount;
+
+        // prompt user input for specilaties number
+        System.out.println("Enter number of specialties: (enter 0 for all default settings)");
+        int specNum = scan.nextInt();
+
+        // default parameters
+        if (specNum == 0) {
+            specialties = new String[]{"Anes", "Card", "OBGYN"};
+            patientCount = 100;
+            providerCount = 20;
+            roomCount = 10;
+        } 
+        // user input initalization
+        else {
+            scan.nextLine();
+            specialties = new String[specNum];
+            for (int i = 1; i < specNum+1; i++) {
+                System.out.println("Enter Specialty " + i);
+                specialties[i-1] = scan.nextLine();
+            }
+
+            System.out.println("Enter number of patients:");
+            patientCount = scan.nextInt();
+
+            System.out.println("Enter number of providers:");
+            providerCount = scan.nextInt();
+            
+            System.out.println("Enter number of rooms:");
+            roomCount = scan.nextInt();       
+        }
+        
         Patient[] patientList = makeLists.generatePatientList(patientCount, specialties);
-        // set up parameters for provider numbers
-        int providerCount = 20;
         Provider[] providerList = makeLists.generateProviderList(providerCount, specialties);
-        // set number and type of rooms
-        int roomCount = 10;
         Room[] roomList = makeLists.generateRoomList(roomCount, specialties);
 
         System.out.println("Patients:");
@@ -52,7 +83,6 @@ public class test {
             writeCSV(firstFitSchedule, "firstFitTest.csv");
             writeCSV(artificialBeeColonySchedule, "abcTest.csv");
         } catch (IOException e) {}
-
     }
     // csv file export method
     public static void writeCSV(Assignment[] schedule, String fileName) throws IOException {
