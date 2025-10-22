@@ -17,4 +17,8 @@ public class Assignment {
     public String toString() {
         return "Patient:" + patient.patientID + " Provider:" + doc.docID + " Room:" + room.roomID + " Day:" + assignDay;
     }
+
+    public String toCSVString() {
+        return patient.patientID + "," + doc.docID + "," + room.roomID + "," + assignDay + "\n";
+    }
 }

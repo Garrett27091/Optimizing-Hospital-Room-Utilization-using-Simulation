@@ -1,3 +1,4 @@
+import java.io.*;
 import Entities.*;
 
 public class test {
@@ -46,6 +47,25 @@ public class test {
 
         for (Assignment a : artificialBeeColonySchedule) {
             System.out.println(a);
+        }
+        try {
+            writeCSV(firstFitSchedule, "firstFitTest.csv");
+            writeCSV(artificialBeeColonySchedule, "abcTest.csv");
+        } catch (IOException e) {}
+
+    }
+    // csv file export method
+    public static void writeCSV(Assignment[] schedule, String fileName) throws IOException {
+        File csvOutput = new File(fileName);
+        try (PrintWriter pw = new PrintWriter(csvOutput)) {
+            for (Assignment a : schedule) {
+                if (a == null) {
+                    continue;
+                }
+                pw.write(a.toCSVString());
+            }
+        } catch (IOException e) {
+            System.out.println("Error writing file");
         }
     }
 }
