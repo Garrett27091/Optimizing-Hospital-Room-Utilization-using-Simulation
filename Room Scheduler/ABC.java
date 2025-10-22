@@ -9,7 +9,9 @@ public class ABC {
     public final int limit = 100; // improvement counter
     public final int employedBees = 20;
     public final int onlookerBees = 15;
-    public final static int conflictPenalty = 10000; // high penalty to prevent double scheduling
+    public final static int conflictPenalty = 100000; // high penalty to prevent double scheduling
+    public final static long sysStartTime = System.currentTimeMillis();
+    public long sysEndTime;
 
     static final Random rand = new Random();
 
@@ -73,8 +75,12 @@ public class ABC {
                 }
             }
         }
-
+        sysEndTime = System.currentTimeMillis();
         return best.assignments;
+    }
+
+    public double getRunTime() {
+        return (sysStartTime - sysEndTime)/60.0;
     }
 
     private static class Solution {
@@ -97,7 +103,7 @@ public class ABC {
                 Provider doc = providers[rand.nextInt(providers.length)];
                 Room room = rooms[rand.nextInt(rooms.length)];
                 int day = rand.nextInt(days);
-                s.assignments[i] = new Assignment(patients[i], doc, room, day);
+                s.assignments[i] = new Assignment(patients[i], doc, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
             } else {
                 s.assignments[i] = null;
             }
@@ -118,7 +124,7 @@ public class ABC {
                     Provider prov = providers[rand.nextInt(providers.length)];
                     Room room = rooms[rand.nextInt(rooms.length)];
                     int day = rand.nextInt(days);
-                    copy.assignments[idx] = new Assignment(patients[idx], prov, room, day);
+                    copy.assignments[idx] = new Assignment(patients[idx], prov, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
                 }
             } else {
                 if (r < 0.5) {
@@ -129,7 +135,7 @@ public class ABC {
                     Provider prov = providers[rand.nextInt(providers.length)];
                     Room room = rooms[rand.nextInt(rooms.length)];
                     int day = rand.nextInt(days);
-                    copy.assignments[idx] = new Assignment(patients[idx], prov, room, day);
+                    copy.assignments[idx] = new Assignment(patients[idx], prov, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
                 }
             }
         }
@@ -185,7 +191,7 @@ public class ABC {
             if (a == null) {
                 c.assignments[i] = null;
             } else {
-                c.assignments[i] = new Assignment(a.patient, a.doc, a.room, a.assignDay);
+                c.assignments[i] = new Assignment(a.patient, a.doc, a.room, a.assignDay, a.timeCreated, a.simTimeCreated);
             }
         }
         c.fitness = s.fitness;

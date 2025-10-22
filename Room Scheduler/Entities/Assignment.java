@@ -5,12 +5,16 @@ public class Assignment {
     public Provider doc;
     public Room room;
     public int assignDay;
+    public long timeCreated;
+    public long simTimeCreated;
 
-    public Assignment(Patient patient, Provider doc, Room room, int day) {
+    public Assignment(Patient patient, Provider doc, Room room, int day, long timeCreated, long simTimeCreated) {
         this.patient = patient;
         this.doc = doc;
         this.room = room;
         assignDay = day;
+        this.timeCreated = timeCreated;
+        this.simTimeCreated = simTimeCreated;
     }
 
     @Override
@@ -19,6 +23,6 @@ public class Assignment {
     }
 
     public String toCSVString() {
-        return patient.patientID + "," + doc.docID + "," + room.roomID + "," + assignDay + "\n";
+        return patient.patientID + "," + doc.docID + "," + room.roomID + "," + assignDay + "," + timeCreated + "," + simTimeCreated + "\n";
     }
 }

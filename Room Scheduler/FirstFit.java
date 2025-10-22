@@ -2,6 +2,9 @@
 import Entities.*;
 
 public class FirstFit {
+    long sysStartTime = System.currentTimeMillis();
+    long sysEndTime;
+
     public Assignment[] createSchedule(Patient[] patients, Room[] rooms, Provider[] docs, int days){
         Assignment[] schedule = new Assignment[patients.length];
 
@@ -35,8 +38,7 @@ public class FirstFit {
                                 }
                                 if (!isConflict) {
                                     //create new assignment for successful match
-                                    Assignment newSchedule = new Assignment(patients[curPatient], docs[curDoc], rooms[curRoom], day);
-
+                                    Assignment newSchedule = new Assignment(patients[curPatient], docs[curDoc], rooms[curRoom], day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
                                     //update room and provider to be scheduled
                                     docs[curDoc].addShift();
 
@@ -52,6 +54,10 @@ public class FirstFit {
                 curDoc++;
             }  
         } 
-    return schedule;           
+        sysEndTime = System.currentTimeMillis();
+        return schedule;           
+    }
+    public double getRunTime() {
+        return (sysStartTime - sysEndTime)/60.0;
     }
 }

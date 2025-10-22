@@ -66,12 +66,13 @@ public class test {
         System.out.println("________________________________________");
 
         Assignment[] firstFitSchedule = firstFit.createSchedule(patientList, roomList, providerList, 14);
-
-        Assignment[] artificialBeeColonySchedule = abc.createSchedule(patientList, providerList, roomList, 14);
+        System.out.println("First Fit Runtime: " + firstFit.getRunTime());
 
         for (Assignment a : firstFitSchedule) {
             System.out.println(a);
         }
+
+        Assignment[] artificialBeeColonySchedule = abc.createSchedule(patientList, providerList, roomList, 14);
 
         System.out.println("Artifical Bee Colony Algorithm");
         System.out.println("________________________________________");
@@ -79,6 +80,9 @@ public class test {
         for (Assignment a : artificialBeeColonySchedule) {
             System.out.println(a);
         }
+
+        System.out.println("ABC Runtime: " + abc.getRunTime());
+
         try {
             writeCSV(firstFitSchedule, "firstFitTest.csv");
             writeCSV(artificialBeeColonySchedule, "abcTest.csv");
