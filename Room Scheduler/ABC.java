@@ -98,12 +98,20 @@ public class ABC {
         s.assignments = new Assignment[patients.length];
         s.trials = 0;
 
+        // track how many shifts each provider has been assigned
+        Map<Provider, Integer> providerShiftCount = new HashMap<>();
+
         for (int i = 0; i < patients.length; i++) {
-            if (rand.nextDouble() < 0.5) { // 50% chance to keep unimproved solution
-                Provider doc = providers[rand.nextInt(providers.length)];
+            if (rand.nextDouble() < 0.5) { // 50% chance to assign
+                Provider doc = getAvailableProvider(providers, providerShiftCount);
+                if (doc == null) {
+                    s.assignments[i] = null;
+                    continue;
+                }
                 Room room = rooms[rand.nextInt(rooms.length)];
                 int day = rand.nextInt(days);
                 s.assignments[i] = new Assignment(patients[i], doc, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
+                providerShiftCount.put(doc, providerShiftCount.getOrDefault(doc, 0) + 1);
             } else {
                 s.assignments[i] = null;
             }
@@ -111,38 +119,70 @@ public class ABC {
         return s;
     }
 
+    // neighbor selection
     private static Solution neighborSolution(Solution base, Patient[] patients, Provider[] providers, Room[] rooms, int days) {
         Solution copy = copy(base);
+
+        // Recalculate provider usage before modification
+        Map<Provider, Integer> providerShiftCount = new HashMap<>();
+        for (Assignment a : copy.assignments) {
+            if (a != null) {
+                providerShiftCount.put(a.doc, providerShiftCount.getOrDefault(a.doc, 0) + 1);
+            }
+        }
 
         int modifications = 1 + rand.nextInt(3);
         for (int m = 0; m < modifications; m++) {
             int idx = rand.nextInt(copy.assignments.length);
             double r = rand.nextDouble();
+
             if (copy.assignments[idx] == null) {
                 // try scheduling an unscheduled patient
                 if (r < 0.5) {
-                    Provider prov = providers[rand.nextInt(providers.length)];
+                    Provider prov = getAvailableProvider(providers, providerShiftCount);
+                    if (prov == null) {
+                        continue;
+                    }
                     Room room = rooms[rand.nextInt(rooms.length)];
                     int day = rand.nextInt(days);
                     copy.assignments[idx] = new Assignment(patients[idx], prov, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
+                    providerShiftCount.put(prov, providerShiftCount.getOrDefault(prov, 0) + 1);
                 }
             } else {
+                // unschedule or modify
                 if (r < 0.5) {
-                    // unschedule
+                    Provider oldProv = copy.assignments[idx].doc;
+                    providerShiftCount.put(oldProv, providerShiftCount.getOrDefault(oldProv, 1) - 1);
                     copy.assignments[idx] = null;
                 } else {
-                    // change provider, room, or day
-                    Provider prov = providers[rand.nextInt(providers.length)];
+                    Provider newProv = getAvailableProvider(providers, providerShiftCount);
+                    if (newProv == null) continue;
                     Room room = rooms[rand.nextInt(rooms.length)];
                     int day = rand.nextInt(days);
-                    copy.assignments[idx] = new Assignment(patients[idx], prov, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
+                    Provider oldProv = copy.assignments[idx].doc;
+                    providerShiftCount.put(oldProv, providerShiftCount.getOrDefault(oldProv, 1) - 1);
+                    copy.assignments[idx] = new Assignment(patients[idx], newProv, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
+                    providerShiftCount.put(newProv, providerShiftCount.getOrDefault(newProv, 0) + 1);
                 }
             }
         }
         return copy;
     }
 
-    // fitness evaluation
+    // get a provider w/ available shift capacity
+    private static Provider getAvailableProvider(Provider[] providers, Map<Provider, Integer> shiftCount) {
+        List<Provider> available = new ArrayList<>();
+        for (Provider p : providers) {
+            int used = shiftCount.getOrDefault(p, 0);
+            if (used < p.maxShifts) {
+                available.add(p);
+            }
+        }
+        if (available.isEmpty()) return null;
+        return available.get(rand.nextInt(available.size()));
+    }
+
+    // fitness evaulation
     private static void evaluateSolution(Solution s) {
         int conflicts = 0;
         int scheduled = 0;
@@ -150,6 +190,7 @@ public class ABC {
         // track usage per day
         Map<Integer, Set<Provider>> providersPerDay = new HashMap<>();
         Map<Integer, Set<Room>> roomsPerDay = new HashMap<>();
+        Map<Provider, Integer> providerShiftCount = new HashMap<>();
 
         for (Assignment a : s.assignments) {
             if (a == null) continue;
@@ -161,6 +202,9 @@ public class ABC {
 
             if (!providersPerDay.get(day).add(a.doc)) conflicts++;
             if (!roomsPerDay.get(day).add(a.room)) conflicts++;
+
+            providerShiftCount.put(a.doc, providerShiftCount.getOrDefault(a.doc, 0) + 1);
+            if (providerShiftCount.get(a.doc) > a.doc.maxShifts) conflicts++;
         }
 
         s.conflicts = conflicts;
@@ -228,5 +272,4 @@ public class ABC {
         }
         return probs.length - 1;
     }
-    
 }
