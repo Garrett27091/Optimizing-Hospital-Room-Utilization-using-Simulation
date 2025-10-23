@@ -4,16 +4,16 @@ import java.util.Scanner;
 import Entities.*;
 
 public class test {
+    static int patientCount;
+    static int providerCount;
+    static int roomCount;
+    static String[] specialties;
     public static void main(String[] args) {
         CreateEntitytList makeLists = new CreateEntitytList();
         FirstFit firstFit = new FirstFit();
         ABC abc = new ABC();
         
         Scanner scan = new Scanner(System.in);
-        String[] specialties;
-        int patientCount;
-        int providerCount;
-        int roomCount;
 
         // prompt user input for specilaties number
         System.out.println("Enter number of specialties: (enter 0 for all default settings)");
@@ -92,6 +92,8 @@ public class test {
     public static void writeCSV(Assignment[] schedule, String fileName) throws IOException {
         File csvOutput = new File(fileName);
         try (PrintWriter pw = new PrintWriter(csvOutput)) {
+            pw.write("Patient Count: " + patientCount + "," + "Provider Count: " + providerCount + "," + "Room Count: " + roomCount + "," + "Specialty Count: " + specialties.length + "\n");
+            pw.write("Patient ID,Provider ID,Room ID,Day Assigned,System Time Created, Simulation Time Created\n");
             for (Assignment a : schedule) {
                 if (a == null) {
                     continue;
