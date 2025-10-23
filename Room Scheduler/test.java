@@ -84,16 +84,17 @@ public class test {
         System.out.println("ABC Runtime: " + abc.getRunTime());
 
         try {
-            writeCSV(firstFitSchedule, patientList, "firstFitTest.csv");
-            writeCSV(artificialBeeColonySchedule, patientList, "abcTest.csv");
+            writeCSV(firstFitSchedule, providerList, "firstFitTest.csv");
+            writeCSV(artificialBeeColonySchedule, providerList, "abcTest.csv");
         } catch (IOException e) {}
     }
     // csv file export method
-    public static void writeCSV(Assignment[] schedule, Patient[] patients, String fileName) throws IOException {
+    public static void writeCSV(Assignment[] schedule, Provider[] docs, String fileName) throws IOException {
         File csvOutput = new File(fileName);
         try (PrintWriter pw = new PrintWriter(csvOutput)) {
             pw.write("Patient Count: " + patientCount + "," + "Provider Count: " + providerCount + "," + "Room Count: " + roomCount + "," + "Specialty Count: " + specialties.length + "\n");
             pw.write("Patient Scheduling Rate: " + calcPatientRatio(schedule) + "\n");
+            pw.write("Provider Scheduling Rates: " + getProviderUltilization(schedule, docs) + "\n");
             pw.write("Patient ID,Provider ID,Room ID,Day Assigned,System Time Created, Simulation Time Created\n");
             for (Assignment a : schedule) {
                 if (a == null) {
@@ -114,5 +115,29 @@ public class test {
             }
         }
         return (double) (patientCount - unscheduled) / patientCount;
+    }
+    // calculates provider scheduling occurences over total available shifts
+    public static String getProviderUltilization(Assignment[] schedule, Provider[] docs) {
+        double[] ratios = new double[providerCount];
+        for (Assignment a : schedule) {
+            if (a == null) {
+                continue;
+            }
+            ratios[a.doc.docID]++;
+        }
+        for (Provider p : docs) {
+            ratios[p.docID] /= p.maxShifts;
+        }
+        String csvProviders = "";
+        for (int i = 0; i < providerCount; i++) {
+            csvProviders += ratios[i]+",";
+        }
+
+        // calc overall schedulling rate
+        double totRate = 0;
+        for (int i = 0; i < providerCount; i++) {
+            totRate += ratios[i];
+        }
+        return csvProviders + "Average Rate: " + totRate/providerCount + "\n";
     }
 }

@@ -17,7 +17,7 @@ public class CreateEntitytList {
         Random rand = new Random();
         Provider[] providerList = new Provider[size];
         for (int i = 0; i < size; i++) {
-            Provider newDoc = new Provider(rand.nextInt(10),specialties[rand.nextInt(specialties.length)], i);
+            Provider newDoc = new Provider(rand.nextInt(9)+1,specialties[rand.nextInt(specialties.length)], i);
             providerList[i] = newDoc;
         }
         return providerList;
