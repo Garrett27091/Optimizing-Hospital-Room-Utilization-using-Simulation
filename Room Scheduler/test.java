@@ -84,15 +84,16 @@ public class test {
         System.out.println("ABC Runtime: " + abc.getRunTime());
 
         try {
-            writeCSV(firstFitSchedule, "firstFitTest.csv");
-            writeCSV(artificialBeeColonySchedule, "abcTest.csv");
+            writeCSV(firstFitSchedule, patientList, "firstFitTest.csv");
+            writeCSV(artificialBeeColonySchedule, patientList, "abcTest.csv");
         } catch (IOException e) {}
     }
     // csv file export method
-    public static void writeCSV(Assignment[] schedule, String fileName) throws IOException {
+    public static void writeCSV(Assignment[] schedule, Patient[] patients, String fileName) throws IOException {
         File csvOutput = new File(fileName);
         try (PrintWriter pw = new PrintWriter(csvOutput)) {
             pw.write("Patient Count: " + patientCount + "," + "Provider Count: " + providerCount + "," + "Room Count: " + roomCount + "," + "Specialty Count: " + specialties.length + "\n");
+            pw.write("Patient Scheduling Rate: " + calcPatientRatio(schedule) + "\n");
             pw.write("Patient ID,Provider ID,Room ID,Day Assigned,System Time Created, Simulation Time Created\n");
             for (Assignment a : schedule) {
                 if (a == null) {
@@ -103,5 +104,15 @@ public class test {
         } catch (IOException e) {
             System.out.println("Error writing file");
         }
+    }
+    // calculates ratio of patients successfully scheduled
+    public static double calcPatientRatio(Assignment[] schedule) {
+        int unscheduled = 0;
+        for (Assignment a : schedule) {
+            if (a == null) {
+                unscheduled++;
+            }
+        }
+        return (double) (patientCount - unscheduled) / patientCount;
     }
 }
