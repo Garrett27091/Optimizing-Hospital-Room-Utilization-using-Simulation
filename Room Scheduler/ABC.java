@@ -80,7 +80,7 @@ public class ABC {
     }
 
     public double getRunTime() {
-        return (sysEndTime - sysStartTime)/60.0;
+        return (sysEndTime - sysStartTime)/1000.0;
     }
 
     private static class Solution {

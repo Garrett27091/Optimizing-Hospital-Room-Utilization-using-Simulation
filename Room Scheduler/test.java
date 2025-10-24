@@ -8,6 +8,7 @@ public class test {
     static int providerCount;
     static int roomCount;
     static String[] specialties;
+    static int days;
     public static void main(String[] args) {
         CreateEntitytList makeLists = new CreateEntitytList();
         FirstFit firstFit = new FirstFit();
@@ -25,6 +26,7 @@ public class test {
             patientCount = 100;
             providerCount = 20;
             roomCount = 10;
+            days = 14;
         } 
         // user input initalization
         else {
@@ -43,6 +45,9 @@ public class test {
             
             System.out.println("Enter number of rooms:");
             roomCount = scan.nextInt();       
+
+            System.out.println("Enter number of days to schedule:");
+            days = scan.nextInt(); 
         }
         
         Patient[] patientList = makeLists.generatePatientList(patientCount, specialties);
@@ -65,14 +70,14 @@ public class test {
         System.out.println("First Fit Schedule");
         System.out.println("________________________________________");
 
-        Assignment[] firstFitSchedule = firstFit.createSchedule(patientList, roomList, providerList, 14);
+        Assignment[] firstFitSchedule = firstFit.createSchedule(patientList, roomList, providerList, days);
         System.out.println("First Fit Runtime: " + firstFit.getRunTime());
 
         for (Assignment a : firstFitSchedule) {
             System.out.println(a);
         }
 
-        Assignment[] artificialBeeColonySchedule = abc.createSchedule(patientList, providerList, roomList, 14);
+        Assignment[] artificialBeeColonySchedule = abc.createSchedule(patientList, providerList, roomList, days);
 
         System.out.println("Artifical Bee Colony Algorithm");
         System.out.println("________________________________________");
