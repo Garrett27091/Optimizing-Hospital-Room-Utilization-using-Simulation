@@ -2,7 +2,7 @@
 import Entities.*;
 
 public class FirstFit {
-    long sysStartTime = System.currentTimeMillis();
+    long sysStartTime = System.nanoTime();
     long sysEndTime;
 
     public Assignment[] createSchedule(Patient[] patients, Room[] rooms, Provider[] docs, int days){
@@ -22,7 +22,7 @@ public class FirstFit {
                 if (patients[curPatient].specialty.equals(docs[curDoc].specialty) && (docs[curDoc].curShifts < docs[curDoc].maxShifts)) {
                     // after finding doctor search for room
                     while (curRoom < rooms.length && !foundAssign) {
-                        if (patients[curPatient].specialty.equals(rooms[curRoom].specialty)) {
+                        if (matchRoom(patients[curPatient], rooms[curRoom])) {
                             // with doctor and room pairing search for available day starting w/ day 1
                             int day = 1;
                             while (day < days+1 && !foundAssign) {
@@ -54,8 +54,16 @@ public class FirstFit {
                 curDoc++;
             }  
         } 
-        sysEndTime = System.currentTimeMillis();
+        sysEndTime = System.nanoTime();
         return schedule;           
+    }
+    public static boolean matchRoom(Patient p, Room r) {
+        for (String sp : r.specialties) {
+            if (p.specialty == sp) {
+                return true;
+            }
+        }
+        return false;
     }
     public double getRunTime() {
         return (sysEndTime - sysStartTime)/1000.0;

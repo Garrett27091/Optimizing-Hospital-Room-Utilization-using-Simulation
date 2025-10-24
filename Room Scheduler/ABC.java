@@ -10,7 +10,7 @@ public class ABC {
     public final int employedBees = 20;
     public final int onlookerBees = 15;
     public final static int conflictPenalty = 100000; // high penalty to prevent double scheduling
-    public final static long sysStartTime = System.currentTimeMillis();
+    public final static long sysStartTime = System.nanoTime();
     public long sysEndTime;
 
     static final Random rand = new Random();
@@ -75,7 +75,7 @@ public class ABC {
                 }
             }
         }
-        sysEndTime = System.currentTimeMillis();
+        sysEndTime = System.nanoTime();
         return best.assignments;
     }
 
@@ -108,7 +108,19 @@ public class ABC {
                     s.assignments[i] = null;
                     continue;
                 }
-                Room room = rooms[rand.nextInt(rooms.length)];
+                Room room = null;
+                // try up to 10 tries to find a compatible room
+                for (int attempt = 0; attempt < 10; attempt++) { 
+                    Room candidate = rooms[rand.nextInt(rooms.length)];
+                    if (isSameSpecialty(patients[i], doc, candidate)) {
+                        room = candidate;
+                        break;
+                    }
+                }
+                if (room == null) { // no compatible room found
+                    s.assignments[i] = null;
+                    continue;
+                }
                 int day = rand.nextInt(days);
                 s.assignments[i] = new Assignment(patients[i], doc, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
                 providerShiftCount.put(doc, providerShiftCount.getOrDefault(doc, 0) + 1);
@@ -143,7 +155,15 @@ public class ABC {
                     if (prov == null) {
                         continue;
                     }
-                    Room room = rooms[rand.nextInt(rooms.length)];
+                    Room room = null;
+                    for (int attempt = 0; attempt < 10; attempt++) {
+                        Room candidate = rooms[rand.nextInt(rooms.length)];
+                        if (isSameSpecialty(patients[idx], prov, candidate)) {
+                            room = candidate;
+                            break;
+                        }
+                    }
+                    if (room == null) continue;
                     int day = rand.nextInt(days);
                     copy.assignments[idx] = new Assignment(patients[idx], prov, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
                     providerShiftCount.put(prov, providerShiftCount.getOrDefault(prov, 0) + 1);
@@ -180,6 +200,19 @@ public class ABC {
         }
         if (available.isEmpty()) return null;
         return available.get(rand.nextInt(available.size()));
+    }
+
+    // checks that room provider and patient specialties match
+    private static boolean isSameSpecialty(Patient pat, Provider prov, Room room) {
+        if (room == null) {
+            return false;
+        }
+        for (String sp : room.specialties) {
+        if (sp.equals(prov.specialty) && sp.equals(pat.specialty)) {
+            return true;
+            }
+        }
+        return false;
     }
 
     // fitness evaulation

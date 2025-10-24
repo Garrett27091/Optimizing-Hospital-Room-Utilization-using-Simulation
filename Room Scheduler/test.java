@@ -71,7 +71,6 @@ public class test {
         System.out.println("________________________________________");
 
         Assignment[] firstFitSchedule = firstFit.createSchedule(patientList, roomList, providerList, days);
-        System.out.println("First Fit Runtime: " + firstFit.getRunTime());
 
         for (Assignment a : firstFitSchedule) {
             System.out.println(a);
@@ -86,17 +85,16 @@ public class test {
             System.out.println(a);
         }
 
-        System.out.println("ABC Runtime: " + abc.getRunTime());
-
         try {
-            writeCSV(firstFitSchedule, providerList, "firstFitTest.csv");
-            writeCSV(artificialBeeColonySchedule, providerList, "abcTest.csv");
+            writeCSV(firstFitSchedule, providerList, "firstFitTest.csv", firstFit.getRunTime());
+            writeCSV(artificialBeeColonySchedule, providerList, "abcTest.csv", abc.getRunTime());
         } catch (IOException e) {}
     }
     // csv file export method
-    public static void writeCSV(Assignment[] schedule, Provider[] docs, String fileName) throws IOException {
+    public static void writeCSV(Assignment[] schedule, Provider[] docs, String fileName, double runtime) throws IOException {
         File csvOutput = new File(fileName);
         try (PrintWriter pw = new PrintWriter(csvOutput)) {
+            pw.write("Runtime: " + runtime + "\n");
             pw.write("Patient Count: " + patientCount + "," + "Provider Count: " + providerCount + "," + "Room Count: " + roomCount + "," + "Specialty Count: " + specialties.length + "\n");
             pw.write("Patient Scheduling Rate: " + calcPatientRatio(schedule) + "\n");
             pw.write("Provider Scheduling Rates: " + getProviderUltilization(schedule, docs) + "\n");

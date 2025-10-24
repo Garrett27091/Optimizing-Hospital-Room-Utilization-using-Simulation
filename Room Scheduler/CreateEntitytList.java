@@ -26,7 +26,11 @@ public class CreateEntitytList {
         Random rand = new Random();
         Room[] roomList = new Room[size];
         for (int i = 0; i < size; i++) {
-            Room newRoom = new Room(specialties[rand.nextInt(specialties.length)], i);
+            String[] randSps = new String[rand.nextInt(specialties.length-1)+1];
+            for (int j = 0; j < randSps.length; j++) {
+                randSps[j] = specialties[rand.nextInt(specialties.length)];
+            }
+            Room newRoom = new Room(randSps, i);
             roomList[i] = newRoom;
         }
         return roomList;
