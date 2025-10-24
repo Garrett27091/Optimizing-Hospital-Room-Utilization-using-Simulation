@@ -80,7 +80,7 @@ public class ABC {
     }
 
     public double getRunTime() {
-        return (sysEndTime - sysStartTime)/1000.0;
+        return (sysEndTime - sysStartTime)/1000000000.0;
     }
 
     private static class Solution {
@@ -122,7 +122,7 @@ public class ABC {
                     continue;
                 }
                 int day = rand.nextInt(days);
-                s.assignments[i] = new Assignment(patients[i], doc, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
+                s.assignments[i] = new Assignment(patients[i], doc, room, day, System.nanoTime(), System.nanoTime()-sysStartTime);
                 providerShiftCount.put(doc, providerShiftCount.getOrDefault(doc, 0) + 1);
             } else {
                 s.assignments[i] = null;
@@ -165,7 +165,7 @@ public class ABC {
                     }
                     if (room == null) continue;
                     int day = rand.nextInt(days);
-                    copy.assignments[idx] = new Assignment(patients[idx], prov, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
+                    copy.assignments[idx] = new Assignment(patients[idx], prov, room, day, System.nanoTime(), System.nanoTime()-sysStartTime);
                     providerShiftCount.put(prov, providerShiftCount.getOrDefault(prov, 0) + 1);
                 }
             } else {
@@ -181,7 +181,7 @@ public class ABC {
                     int day = rand.nextInt(days);
                     Provider oldProv = copy.assignments[idx].doc;
                     providerShiftCount.put(oldProv, providerShiftCount.getOrDefault(oldProv, 1) - 1);
-                    copy.assignments[idx] = new Assignment(patients[idx], newProv, room, day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
+                    copy.assignments[idx] = new Assignment(patients[idx], newProv, room, day, System.nanoTime(), System.nanoTime()-sysStartTime);
                     providerShiftCount.put(newProv, providerShiftCount.getOrDefault(newProv, 0) + 1);
                 }
             }

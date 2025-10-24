@@ -38,7 +38,7 @@ public class FirstFit {
                                 }
                                 if (!isConflict) {
                                     //create new assignment for successful match
-                                    Assignment newSchedule = new Assignment(patients[curPatient], docs[curDoc], rooms[curRoom], day, System.currentTimeMillis(), System.currentTimeMillis()-sysStartTime);
+                                    Assignment newSchedule = new Assignment(patients[curPatient], docs[curDoc], rooms[curRoom], day, System.nanoTime(), System.nanoTime()-sysStartTime);
                                     //update room and provider to be scheduled
                                     docs[curDoc].addShift();
 
@@ -66,6 +66,6 @@ public class FirstFit {
         return false;
     }
     public double getRunTime() {
-        return (sysEndTime - sysStartTime)/1000.0;
+        return (sysEndTime - sysStartTime)/1000000000.0;
     }
 }

@@ -32,9 +32,8 @@ public class test {
         else {
             scan.nextLine();
             specialties = new String[specNum];
-            for (int i = 1; i < specNum+1; i++) {
-                System.out.println("Enter Specialty " + i);
-                specialties[i-1] = scan.nextLine();
+            for (int i = 0; i < specNum; i++) {
+                specialties[i]=""+i;
             }
 
             System.out.println("Enter number of patients:");
