@@ -5,7 +5,7 @@ public class ABC {
 
     // initiatize bee algorithm parameters
     public final int populationSize = 40;
-    public final int maxIterations = 1000;
+    public final int maxIterations = 3000;
     public final int limit = 100; // improvement counter
     public final int employedBees = 20;
     public final int onlookerBees = 15;

@@ -23,9 +23,9 @@ public class test {
         // default parameters
         if (specNum == 0) {
             specialties = new String[]{"Anes", "Card", "OBGYN"};
-            patientCount = 100;
-            providerCount = 20;
-            roomCount = 10;
+            patientCount = 200;
+            providerCount = 150;
+            roomCount = 150;
             days = 14;
         } 
         // user input initalization
@@ -84,10 +84,25 @@ public class test {
             System.out.println(a);
         }
 
+        /* 
+        for (int i = 0; i < 30; i++) {
+            FirstFit newfirstFit = new FirstFit();
+            Patient[] temppatientList = makeLists.generatePatientList(patientCount, specialties);
+            Provider[] tempproviderList = makeLists.generateProviderList(providerCount, specialties);
+            Room[] temproomList = makeLists.generateRoomList(roomCount, specialties);
+            Assignment[] newfirstFitSchedule = newfirstFit.createSchedule(patientList, roomList, providerList, days);
+            Assignment[] newartificialBeeColonySchedule = abc.createSchedule(patientList, providerList, roomList, days);
+            try {
+                writeCSV(newfirstFitSchedule, tempproviderList, ("firstFitTestDEFAULT"+i+".csv"), newfirstFit.getRunTime());
+                writeCSV(newartificialBeeColonySchedule, tempproviderList, ("abcTestDEFAULT"+i+".csv"), abc.getRunTime());
+            } catch (IOException e) {}
+        }
+            */
         try {
             writeCSV(firstFitSchedule, providerList, "firstFitTest.csv", firstFit.getRunTime());
             writeCSV(artificialBeeColonySchedule, providerList, "abcTest.csv", abc.getRunTime());
         } catch (IOException e) {}
+        
     }
     // csv file export method
     public static void writeCSV(Assignment[] schedule, Provider[] docs, String fileName, double runtime) throws IOException {
